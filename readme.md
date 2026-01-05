@@ -10,9 +10,9 @@ The system is designed for low-latency streaming scenarios and supports both mag
 * **Multi-Microphone Input**
   Uses **Log-Abs Spectrogram (LAS)** and **Generalized Cross-Correlation - PHAT(GCC)** spatial features.
 
-* **Hybrid Training Objective**
-  Combines mask-level MSE loss with signal-level loss after MVDR beamforming, improving perceptual quality and intelligibility.
-
+* **Training Objective**
+  CRM mask prediction optimized using MSE loss
+  
 * **Causal Architecture**
   Frame-by-frame processing with optional temporal decimation for real-time deployment.
 
@@ -208,4 +208,5 @@ Parameters used during inference and visualization.
 
 
 Specify license information here.
+
 
