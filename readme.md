@@ -208,7 +208,8 @@ Parameters used during inference and visualization.
 ---
 
 
-Specify license information here.
+This project is licensed under the MIT License.
+
 
 
 
