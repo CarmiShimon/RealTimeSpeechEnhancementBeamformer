@@ -8,7 +8,7 @@ The system is designed for low-latency streaming scenarios and supports both mag
 ## 🚀 Features
 
 * **Multi-Microphone Input**
-  Uses **Log-Abs Spectrogram (LAS)** and **Generalized Cross-Correlation (GCC)** spatial features.
+  Uses **Log-Abs Spectrogram (LAS)** and **Generalized Cross-Correlation - PHAT(GCC)** spatial features.
 
 * **Hybrid Training Objective**
   Combines mask-level MSE loss with signal-level loss after MVDR beamforming, improving perceptual quality and intelligibility.
@@ -208,3 +208,4 @@ Parameters used during inference and visualization.
 
 
 Specify license information here.
+
