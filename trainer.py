@@ -1,6 +1,6 @@
 import torch
 from omegaconf import DictConfig
-from losses import compute_CRM_loss, compute_IRM_loss
+from losses import compute_CRM_loss, compute_IRM_loss, wSDRLoss
 from stft_handler import STFTHandler
 from beamformer import MVDRBeamformer
 from norm import OnlineNorm
@@ -119,11 +119,14 @@ class Trainer:
             # 7. STFT loss
             # enhanced_f = self.beamformer(mix_f, pred_mask, mask_type=self.cfg.mvdr.mask_type)
             if self.cfg.mvdr.mask_type == "IRM":
-                total_loss = compute_IRM_loss(pred_mask, gt_mask)
+                stft_loss = compute_IRM_loss(pred_mask, gt_mask)
             else:
                 clean_f_hat = torch.complex(pred_mask[..., 0], pred_mask[..., 1]) * mix_f[:, 0]
-                total_loss = compute_CRM_loss(clean_f_hat, clean_f_ref)
-
+                stft_loss = compute_CRM_loss(clean_f_hat, clean_f_ref)
+            # Signal loss
+            clean_t_hat = self.stft_handler.inverse(clean_f_hat)
+            signal_loss = -wSDRLoss(clean_t[:, 0], clean_t_hat, mix_t[:, 0])
+            total_loss = 0.8 * stft_loss + 0.2 * signal_loss
             # 8. Optimize
             self.optimizer.zero_grad()
             total_loss.backward()
@@ -185,12 +188,14 @@ class Trainer:
             # 6. Compute Loss
             if self.cfg.mvdr.mask_type == "IRM":
                 gt_mask = get_irm_mask(clean_f_ref, mix_f)
-                irm_loss = compute_IRM_loss(pred_mask, gt_mask)
-                total_val_loss += irm_loss.item()
+                stft_loss = compute_IRM_loss(pred_mask, gt_mask)
             else:
                 clean_f_hat = torch.complex(pred_mask[..., 0], pred_mask[..., 1]) * mix_f[:, 0]
-                crm_loss = compute_CRM_loss(clean_f_hat, clean_f_ref)
-                total_val_loss += crm_loss.item()
+                stft_loss = compute_CRM_loss(clean_f_hat, clean_f_ref)
+
+            clean_t_hat = self.stft_handler.inverse(clean_f_hat)
+            signal_loss = -wSDRLoss(clean_t[:, 0], clean_t_hat, mix_t[:, 0])
+            total_val_loss += 0.8 * stft_loss.item() + 0.2 * signal_loss.item()
 
         avg_val_loss = total_val_loss / len(val_loader)
         print(f"Validation Finished | Avg Loss: {avg_val_loss:.4f}")
