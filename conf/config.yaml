@@ -1,0 +1,45 @@
+# Global Configuration
+audio:
+  sample_rate: 16000
+  n_fft: 256
+  hop_length: 128
+  num_mics: 2
+
+data:
+  # Replace with your actual H5 paths
+  train_path: "data/train.h5"
+  val_path: "data/eval.h5"
+  test_path: "data/eval.h5"
+  segment_sec: 5.0           # Length of audio chunks for training
+  stride_sec: 0
+
+mvdr:
+  mask_type: "CRM"           # "CRM" (Complex) or "IRM" (Real/Magnitude)
+  is_use_phase: True         # Normalizes the RTF to unit magnitude, rely only on phase diff.
+  noise_thd: 0.1             # Gating threshold for noise estimation
+  speech_thd: 0.9            # Gating threshold for speech estimation
+  Tsmth: 0.1                 # Time constant for PSD smoothing (seconds)
+
+training:
+  epochs: 100
+  batch_size: 16
+  lr: 0.001
+  weight_decay: 1e-5
+  num_workers: 4             # Parallel data loading
+  checkpoint_file: "outputs"
+
+model:
+  rnn_type: "gru"
+  hidden_dim: 128
+  decimation: 2         # Temporal downsampling factor (1 = no decimation)
+  use_gcc: True
+  num_hidden_layers: 2
+
+norm:
+  Tpsd: 0.1
+  # Normalization is applied to LAS, which has (n_fft // 2 + 1) binssize is automatically (n_fft // 2 + 1)
+
+inference:
+  model_path: '../outputs/2026-01-05/10-02-27/model_epoch_7.pt'
+  wav_path_front: '../wavs/audio_Front_1_Left_2025-11-18_15-30-18_+2.wav'
+  wav_path_rear: '../wavs/audio_Rear_1_Left_2025-11-18_15-30-18_+2.wav'
